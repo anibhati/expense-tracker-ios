@@ -1,4 +1,4 @@
-# iOS Expense Tracker 📱💸
+# iOS Expense Tracker
 
 An iOS expense tracking application built with **Swift** that allows users to record, categorize, and monitor their daily spending. The app focuses on simplicity, clean UI, and core personal finance functionality.
 
