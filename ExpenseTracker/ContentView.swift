@@ -1,10 +1,10 @@
 //
-//  Models.swift
-//  Example
+//  This is a SwiftUi based Expenses Tracker App
 //
 
 import Foundation
 
+// This component contains the variables needed for the entire app
 struct Expense: Identifiable, Codable, Hashable {
     var id = UUID()
     var amount: Double
@@ -18,6 +18,8 @@ struct Expense: Identifiable, Codable, Hashable {
     }
 }
 
+//This enum contains the category drop down for which type of
+//expense you wish to record
 enum ExpenseCategory: String, Codable, CaseIterable {
     case food = "Food"
     case transportation = "Transportation"
@@ -26,7 +28,10 @@ enum ExpenseCategory: String, Codable, CaseIterable {
     case bills = "Bills"
     case healthcare = "Healthcare"
     case education = "Education"
+    case house = "House"
+    case car = "Car"
     case other = "Other"
+    
     
     var icon: String {
         switch self {
@@ -37,7 +42,11 @@ enum ExpenseCategory: String, Codable, CaseIterable {
         case .bills: return "doc.text.fill"
         case .healthcare: return "cross.case.fill"
         case .education: return "book.fill"
+        case .house: return "house.fill"
+        case .car: return "car.fill"
         case .other: return "ellipsis.circle.fill"
+        
+        
         }
     }
 }
@@ -61,7 +70,7 @@ class ExpenseStore: ObservableObject {
         loadExpenses()
     }
     
-    // MARK: - Computed Properties
+    //This section computes your expenses
     
     var totalExpenses: Double {
         expenses.reduce(0) { $0 + $1.amount }
@@ -160,26 +169,14 @@ struct ContentView: View {
                         ForEach(groupedExpenses.keys.sorted(by: >), id: \.self) { date in
                             Section(header: Text(formatSectionDate(date))) {
                                 ForEach(groupedExpenses[date] ?? []) { expense in
-                                    ExpenseRow(expense: expense)
-                                        .contentShape(Rectangle())
-                                        .onTapGesture {
-                                            selectedExpense = expense
-                                        }
-                                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                            Button(role: .destructive) {
-                                                expenseToDelete = expense
-                                                showingDeleteAlert = true
-                                            } label: {
-                                                Label("Delete", systemImage: "trash")
-                                            }
-                                            
-                                            Button {
-                                                selectedExpense = expense
-                                            } label: {
-                                                Label("Edit", systemImage: "pencil")
-                                            }
-                                            .tint(.blue)
-                                        }
+                                    ExpenseRow(expense: expense) {
+                                        expenseToDelete = expense
+                                        showingDeleteAlert = true
+                                    }
+                                    .contentShape(Rectangle())
+                                    .onTapGesture {
+                                        selectedExpense = expense
+                                    }
                                 }
                             }
                         }
@@ -279,6 +276,7 @@ struct EmptyStateView: View {
 
 struct ExpenseRow: View {
     let expense: Expense
+    var onDelete: () -> Void
     
     var body: some View {
         HStack(spacing: 12) {
@@ -302,6 +300,15 @@ struct ExpenseRow: View {
             Text(expense.formattedAmount)
                 .font(.headline)
                 .fontWeight(.semibold)
+            //Delete Button if using the app simulator on mac
+            Button {
+                onDelete()
+            }
+            label:{
+                Image(systemName: "trash")
+                    .foregroundColor(.red)
+            }
+            .buttonStyle(.plain)
         }
         .padding(.vertical, 8)
     }
